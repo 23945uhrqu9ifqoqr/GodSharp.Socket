@@ -3,6 +3,7 @@ using GodSharp.Sockets.Extensions;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace GodSharp.Sockets.Udp
 {
@@ -65,7 +66,11 @@ namespace GodSharp.Sockets.Udp
             }
             catch (Exception ex)
             {
-                OnException?.Invoke(new NetClientEventArgs<IUdpConnection>(this) { Exception = ex });
+                if (OnException != null)
+                {
+                    Task.Run(() => OnException(new NetClientEventArgs<IUdpConnection>(this) { Exception = ex }));
+                }
+                
                 throw ex;
             }
         }
@@ -78,11 +83,18 @@ namespace GodSharp.Sockets.Udp
 
                 Listener = new UdpListener(this);
                 Listener.Start();
-                OnStarted?.Invoke(new NetClientEventArgs<IUdpConnection>(this));
+
+                if (OnStarted != null)
+                {
+                    Task.Run(() => OnStarted(new NetClientEventArgs<IUdpConnection>(this)));
+                }                
             }
             catch (Exception ex)
             {
-                OnException?.Invoke(new NetClientEventArgs<IUdpConnection>(this) { Exception = ex });
+                if (OnException != null)
+                {
+                    Task.Run(() => OnException(new NetClientEventArgs<IUdpConnection>(this) { Exception = ex }));
+                }
             }
         }
 
@@ -94,11 +106,18 @@ namespace GodSharp.Sockets.Udp
             try
             {
                 Listener?.Stop();
-                OnStopped?.Invoke(new NetClientEventArgs<IUdpConnection>(this));
+
+                if (OnStopped != null)
+                {
+                    Task.Run(() => OnStopped(new NetClientEventArgs<IUdpConnection>(this)));
+                }                
             }
             catch (Exception ex)
             {
-                OnException?.Invoke(new NetClientEventArgs<IUdpConnection>(this) { Exception = ex });
+                if (OnException != null)
+                {
+                    Task.Run(() => OnException(new NetClientEventArgs<IUdpConnection>(this) { Exception = ex }));
+                }
             }
         }
 

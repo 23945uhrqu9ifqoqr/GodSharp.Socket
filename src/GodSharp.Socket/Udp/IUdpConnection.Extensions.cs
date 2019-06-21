@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace GodSharp.Sockets
 {
@@ -12,7 +13,7 @@ namespace GodSharp.Sockets
         {
             if (!OnSend(connection)) return @default;
 
-            return func.Invoke();
+            return Task.Run(func).GetAwaiter().GetResult();
         }
 
         private static bool OnSend(IUdpConnection connection)
