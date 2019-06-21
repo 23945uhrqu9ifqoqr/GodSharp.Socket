@@ -12,7 +12,7 @@ namespace GodSharp.Sockets
         {
             if (encoding == null) encoding = Encoding.UTF8;
 
-            byte[] packetData = Encoding.UTF8.GetBytes(data);
+            byte[] packetData = encoding.GetBytes(data);
 
             return await socket.SendAsync(new ArraySegment<byte>(packetData, 0, packetData.Length), SocketFlags.None);
         }
