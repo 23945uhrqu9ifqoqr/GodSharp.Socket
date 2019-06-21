@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace GodSharp.Sockets.Tcp
 {
@@ -15,11 +16,29 @@ namespace GodSharp.Sockets.Tcp
 
         protected override T OnEndReceive<T>(IAsyncResult result) => new ReceiveResult(Connection.Instance.EndReceive(result, out SocketError error), Connection.RemoteEndPoint) as T;
 
-        protected override void OnReceiveHandling(byte[] buffers, IPEndPoint remote = null, IPEndPoint local = null) => Connection.OnReceived?.Invoke(new NetClientReceivedEventArgs<ITcpConnection>(Connection, buffers, remote, local));
+        protected override void OnReceiveHandling(byte[] buffers, IPEndPoint remote = null, IPEndPoint local = null)
+        {
+            if (Connection.OnReceived != null)
+            {
+                Task.Run(() => Connection.OnReceived(new NetClientReceivedEventArgs<ITcpConnection>(Connection, buffers, remote, local)));
+            }
+        }
 
-        protected override void OnStop(Exception exception) => Connection.OnDisconnected?.Invoke(new NetClientEventArgs<ITcpConnection>(Connection) { Exception = exception });
+        protected override void OnStop(Exception exception)
+        {
+            if (Connection.OnDisconnected != null)
+            {
+                Task.Run(() => Connection.OnDisconnected(new NetClientEventArgs<ITcpConnection>(Connection) { Exception = exception }));
+            }
+        }
 
-        protected override void OnException(Exception exception) => Connection.OnException?.Invoke(new NetClientEventArgs<ITcpConnection>(Connection) { Exception = exception });
+        protected override void OnException(Exception exception)
+        {
+            if (Connection.OnException != null)
+            {
+                Task.Run(() => Connection.OnException(new NetClientEventArgs<ITcpConnection>(Connection) { Exception = exception }));
+            }            
+        }
 
         public override void Dispose()
         {

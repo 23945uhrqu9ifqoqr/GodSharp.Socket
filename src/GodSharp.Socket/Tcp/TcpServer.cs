@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace GodSharp.Sockets
 {
@@ -38,7 +39,11 @@ namespace GodSharp.Sockets
             }
             catch (Exception ex)
             {
-                OnServerException?.Invoke(new NetServerEventArgs(this, LocalEndPoint) { Exception = ex });
+                if (OnServerException != null)
+                {
+                    Task.Run(() => OnServerException(new NetServerEventArgs(this, LocalEndPoint) { Exception = ex }));
+                }
+
                 throw ex;
             }
         }
@@ -84,7 +89,11 @@ namespace GodSharp.Sockets
             }
             catch (Exception ex)
             {
-                OnServerException?.Invoke(new NetServerEventArgs(this, LocalEndPoint) { Exception = ex });
+                if (OnServerException != null)
+                {
+                    Task.Run(() => OnServerException(new NetServerEventArgs(this, LocalEndPoint) { Exception = ex }));
+                }
+
                 throw ex;
             }
         }
@@ -99,11 +108,17 @@ namespace GodSharp.Sockets
 
                 running = true;
 
-                OnStarted?.Invoke(new NetServerEventArgs(this, LocalEndPoint));
+                if (OnStarted != null)
+                {
+                    Task.Run(() => OnStarted(new NetServerEventArgs(this, LocalEndPoint)));
+                }
             }
             catch (Exception ex)
             {
-                OnServerException?.Invoke(new NetServerEventArgs(this, LocalEndPoint) { Exception = ex });
+                if (OnServerException != null)
+                {
+                    Task.Run(() => OnServerException(new NetServerEventArgs(this, LocalEndPoint) { Exception = ex }));
+                }
             }
         }
 
@@ -152,11 +167,21 @@ namespace GodSharp.Sockets
             {
                 if (exception != null)
                 {
-                    OnServerException?.Invoke(new NetServerEventArgs(this, LocalEndPoint) { Exception = exception });
+                    if (OnServerException != null)
+                    {
+                        Task.Run(() => OnServerException(new NetServerEventArgs(this, LocalEndPoint) { Exception = exception }));
+                    }
+
                     throw exception;
                 }
 
-                if (stopping) OnStopped?.Invoke(new NetServerEventArgs(this, LocalEndPoint));
+                if (stopping)
+                {
+                    if (OnStopped != null)
+                    {
+                        Task.Run(() => OnStopped(new NetServerEventArgs(this, LocalEndPoint)));
+                    }
+                }
 
                 stopping = false;
             }
@@ -165,7 +190,11 @@ namespace GodSharp.Sockets
         protected override void OnDisconnectedHandler(NetClientEventArgs<ITcpConnection> args)
         {
             RemoveListener(args.NetConnection.Key);
-            OnDisconnected?.Invoke(args);
+
+            if (OnDisconnected != null)
+            {
+                Task.Run(() => OnDisconnected(args));
+            }
         }
 
         private void BeginAccept()
@@ -176,7 +205,10 @@ namespace GodSharp.Sockets
             }
             catch (Exception ex)
             {
-                OnServerException?.Invoke(new NetServerEventArgs(this, LocalEndPoint) { Exception = ex });
+                if (OnServerException != null)
+                {
+                    Task.Run(() => OnServerException(new NetServerEventArgs(this, LocalEndPoint) { Exception = ex }));
+                }
 
                 Stop();
             }
@@ -208,11 +240,17 @@ namespace GodSharp.Sockets
                     Connections.Add(connection.Key, connection);
                 }
 
-                OnConnected?.Invoke(new NetClientEventArgs<ITcpConnection>(connection));
+                if (OnConnected != null)
+                {
+                    Task.Run(() => OnConnected(new NetClientEventArgs<ITcpConnection>(connection)));
+                }
             }
             catch (Exception ex)
             {
-                OnServerException?.Invoke(new NetServerEventArgs(this, LocalEndPoint, connection) { Exception = ex });
+                if (OnServerException != null)
+                {
+                    Task.Run(() => OnServerException(new NetServerEventArgs(this, LocalEndPoint, connection) { Exception = ex }));
+                }
             }
             finally
             {
@@ -239,7 +277,10 @@ namespace GodSharp.Sockets
             }
             catch (Exception ex)
             {
-                OnServerException?.Invoke(new NetServerEventArgs(this, LocalEndPoint) { Exception = ex });
+                if (OnServerException != null)
+                {
+                    Task.Run(() => OnServerException(new NetServerEventArgs(this, LocalEndPoint) { Exception = ex }));
+                }
             }
             finally
             {

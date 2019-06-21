@@ -4,6 +4,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace GodSharp.Sockets.Tcp
 {
@@ -83,11 +84,20 @@ namespace GodSharp.Sockets.Tcp
                     Listener.Start();
                 }
 
-                if (Listener?.Running == true) OnStarted?.Invoke(new NetClientEventArgs<ITcpConnection>(this));
+                if (Listener?.Running == true)
+                {
+                    if (OnStarted != null)
+                    {
+                        Task.Run(() => OnStarted(new NetClientEventArgs<ITcpConnection>(this)));
+                    }
+                }
             }
             catch (Exception ex)
             {
-                OnException?.Invoke(new NetClientEventArgs<ITcpConnection>(this) { Exception = ex });
+                if (OnException != null)
+                {
+                    Task.Run(() => OnException(new NetClientEventArgs<ITcpConnection>(this) { Exception = ex }));
+                }
 
                 if (!connected) throw ex;
             }
@@ -102,11 +112,17 @@ namespace GodSharp.Sockets.Tcp
             {
                 Listener?.Stop();
 
-                OnStopped?.Invoke(new NetClientEventArgs<ITcpConnection>(this));
+                if (OnStopped != null)
+                {
+                    Task.Run(() => OnStopped(new NetClientEventArgs<ITcpConnection>(this)));
+                }
             }
             catch (Exception ex)
             {
-                OnException?.Invoke(new NetClientEventArgs<ITcpConnection>(this) { Exception = ex });
+                if (OnException != null)
+                {
+                    Task.Run(() => OnException(new NetClientEventArgs<ITcpConnection>(this) { Exception = ex }));
+                }                
             }
         }
 
@@ -149,7 +165,10 @@ namespace GodSharp.Sockets.Tcp
                 this.RemoteEndPoint = Instance.RemoteEndPoint.As();
                 this.LocalEndPoint = Instance.LocalEndPoint.As();
 
-                OnConnected?.Invoke(new NetClientEventArgs<ITcpConnection>(this));
+                if (OnConnected != null)
+                {
+                    Task.Run(() => OnConnected(new NetClientEventArgs<ITcpConnection>(this)));
+                }
 
                 data.Connected = true;
                 connected = true;

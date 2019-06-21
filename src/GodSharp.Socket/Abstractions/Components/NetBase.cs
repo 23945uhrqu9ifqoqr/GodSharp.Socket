@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace GodSharp.Sockets.Abstractions
 {
@@ -28,17 +29,53 @@ namespace GodSharp.Sockets.Abstractions
 
         public abstract void Stop();
 
-        protected virtual void OnConnectedHandler(NetClientEventArgs<TConnection> args) => OnConnected?.Invoke(args);
+        protected virtual void OnConnectedHandler(NetClientEventArgs<TConnection> args)
+        {
+            if (OnConnected != null)
+            {
+                Task.Run(() => OnConnected(args));
+            }
+        }
 
-        protected virtual void OnReceivedHandler(NetClientReceivedEventArgs<TConnection> args) => OnReceived?.Invoke(args);
+        protected virtual void OnReceivedHandler(NetClientReceivedEventArgs<TConnection> args)
+        {
+            if (OnReceived != null)
+            {
+                Task.Run(() => OnReceived(args));
+            }
+        }
 
-        protected virtual void OnDisconnectedHandler(NetClientEventArgs<TConnection> args) => OnDisconnected?.Invoke(args);
+        protected virtual void OnDisconnectedHandler(NetClientEventArgs<TConnection> args)
+        {
+            if (OnDisconnected != null)
+            {
+                Task.Run(() => OnDisconnected(args));
+            }
+        }
 
-        protected virtual void OnStartedHandler(TEventArgs args) => OnStarted?.Invoke(args);
+        protected virtual void OnStartedHandler(TEventArgs args)
+        {
+            if (OnStarted != null)
+            {
+                Task.Run(() => OnStarted(args));
+            }
+        }
 
-        protected virtual void OnStoppedHandler(TEventArgs args) => OnStopped?.Invoke(args);
+        protected virtual void OnStoppedHandler(TEventArgs args)
+        {
+            if (OnStopped != null)
+            {
+                Task.Run(() => OnStopped(args));
+            }
+        }
 
-        protected virtual void OnExceptionHandler(NetClientEventArgs<TConnection> args) => OnException?.Invoke(args);
+        protected virtual void OnExceptionHandler(NetClientEventArgs<TConnection> args)
+        {
+            if (OnException != null)
+            {
+                Task.Run(() => OnException(args));
+            }
+        }
 
         public abstract void Dispose();
     }
