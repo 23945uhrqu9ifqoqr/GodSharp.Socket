@@ -2,11 +2,21 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace GodSharp.Sockets
 {
     public static class SocketExtensions
     {
+        public async static Task<int> SendAsync(this Socket socket, string data, Encoding encoding = null)
+        {
+            if (encoding == null) encoding = Encoding.UTF8;
+
+            byte[] packetData = Encoding.UTF8.GetBytes(data);
+
+            return await socket.SendAsync(new ArraySegment<byte>(packetData, 0, packetData.Length), SocketFlags.None);
+        }
+
         /// <summary>
         /// Sends data to a connected <see cref="Socket"/>.
         /// </summary>
