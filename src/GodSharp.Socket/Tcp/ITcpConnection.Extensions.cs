@@ -63,7 +63,21 @@ namespace GodSharp.Sockets
         /// <returns></returns>
         public static bool SendAsync(this ITcpConnection connection, SocketAsyncEventArgs e) => OnSend(connection, () => connection.Instance.SendAsync(e), false);
 
-        public static async Task<int> SendAsync(this ITcpConnection connection, string data, Encoding encoding = null) => await connection.SendAsync(data, encoding);
+        public static async Task<int> SendAsync(this ITcpConnection connection, string data, Encoding encoding = null)
+        {
+            int bytesSent = -1;
+
+            try
+            {
+                bytesSent = await connection.Instance.SendAsync(data, encoding);
+            }
+            catch
+            {
+                bytesSent = -1;
+            }
+
+            return bytesSent;
+        }
         /// <summary>
         /// Begins the send.
         /// </summary>

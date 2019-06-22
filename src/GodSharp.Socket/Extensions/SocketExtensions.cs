@@ -8,8 +8,13 @@ namespace GodSharp.Sockets
 {
     public static class SocketExtensions
     {
-        public async static Task<int> SendAsync(this Socket socket, string data, Encoding encoding = null)
+        public static async Task<int> SendAsync(this Socket socket, string data, Encoding encoding = null)
         {
+            if (socket == null || !socket.Connected)
+            {
+                return -1;
+            }
+
             if (encoding == null) encoding = Encoding.UTF8;
 
             byte[] packetData = encoding.GetBytes(data);
